@@ -1,0 +1,164 @@
+:root {
+  --color_dark: #000;
+  --color_light: #fff;
+  --color_green: #0f0;
+  --color_blue: #00f;
+  --color_red: #f00;
+  --color_grey: #333;
+
+  --default-font-family: 'Roboto', sans-serif;
+
+  --hamburger--size: 48px;
+  --hamburger--layer-height: 4px;
+  --hamburger--layer-width: 40px;
+  --hamburger--layer-color: var(--color_light);
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+/* utility class should have single prop but for grouping you can use multiple utility classes */
+.f0 {
+  font-size: 8px;
+}
+.f1 {
+  font-size: 12px;
+}
+.f2 {
+  font-size: 16px;
+}
+.f3 {
+  font-size: 24px;
+}
+.f4 {
+  font-size: 36px;
+}
+.f5 {
+  font-size: 48px;
+}
+
+/* Six + 2 - color */
+
+.light {
+  color: #fff;
+}
+.dark {
+  color: #000;
+}
+.red {
+  color: red;
+}
+.blue {
+  color: blue;
+}
+.green {
+  color: green
+}
+
+.bg-clr__red {
+  background-color: red;
+}
+.bg-clr__blue {
+  background-color: blue;
+}
+.bg-clr__green {
+  background-color: green;
+}
+
+.d-flex {
+  display: flex;
+}
+
+.show-on-mobi {
+  display: none;
+}
+
+@media screen and (max-width: 650px) {
+  .hide-on-mobi {
+    display: none;
+  }
+
+  .show-on-mobi {
+    display: block;
+  }
+}
+
+/* BEM */
+.d-flex__center {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.hamburger {
+  position: relative;
+  width: var(--hamburger--size);
+  height: var(--hamburger--size);
+  color: var(--hamburger--layer-color);
+}
+
+.hamburger .layer {
+  display: block;
+  position: absolute;
+  left: 4px;
+  border-bottom: var(--hamburger--layer-height) solid #fff;
+  width: var(--hamburger--layer-width);
+}
+
+.hamburger .layer:nth-child(1) {
+  top: 9px;
+}
+.hamburger .layer:nth-child(2) {
+  top: 22px;
+}
+.hamburger .layer:nth-child(3) {
+  top: 35px;
+}
+
+
+.app-container {
+  height: 100vh;
+  width: 100vw;
+
+  font-family: var(--default-font-family);
+  color:var(--color_dark);
+  background-color: var(--color_light);
+}
+
+.app-header {
+  width: 100%;
+  height: 60px;
+  padding-left: 16px;
+  padding-right: 16px;
+
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.app-header .logo .site-name {
+  color: aquamarine;
+}
+
+.nav-bar__item {
+  margin: auto 4px;
+}
+
+.nav-bar__item:hover {
+  color: aquamarine;
+}
+
+.app-body {
+  flex: 1;
+  width: 100%;
+}
+
+.app-footer {
+  width: 100%;
+  height: 60px;
+}

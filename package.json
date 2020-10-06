@@ -1,0 +1,11 @@
+{
+  "name": "TicketReservation-jQuery",
+  "version": "1.0.0",
+  "main": "index.js",
+  "repository": "https://github.com/blcorps9/TicketReservation-jQuery.git",
+  "author": "Saint Walker <blcorps9@gmail.com>",
+  "license": "MIT",
+  "dependencies": {
+    "express": "^4.17.1"
+  }
+}

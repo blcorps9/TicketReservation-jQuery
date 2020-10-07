@@ -1,0 +1,43 @@
+.page.registration {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+.page.registration .container {
+  background-color: var(--color-light);
+  width: 320px;
+  box-shadow: 10px 10px 5px 0px rgba(0,0,0,0.75);
+  padding: 16px;
+  margin: 24px;
+}
+
+/* [label]|[value] */
+.page.registration .container h1 {
+  text-align: center;
+}
+
+.user-registration {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: center;
+}
+
+.user-registration .error {
+  color: var(--color-tomato);
+}
+.user-registration label {
+  margin: 4px;
+}
+.user-registration input {
+  align-items: center;
+  margin-bottom: 16px;
+  width: 90%;
+  padding: 8px;
+}
+
+.user-registration input[type=submit]:hover {
+  background-color: var(--color-mistyrose);
+}

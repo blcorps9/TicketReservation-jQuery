@@ -39,3 +39,11 @@
 .page.home .search-results .row span {
   flex: 1;
 }
+
+@media screen and (min-width: 650px) {
+  .page.home .search-box,
+  .page.home .search-results {
+    width: 80%;
+    margin: auto;
+  }
+}

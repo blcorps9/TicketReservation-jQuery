@@ -99,10 +99,12 @@ function onSubmit(e) {
     ET_API.createUser(formData).then(() => {
       localStorage.setItem('loggedIn', true);
       ET.navigateTo && ET.navigateTo('Dashboard');
+      ET.createSiteNav();
       ET.hideSpinner();
     }).catch(err => {
       renderErrors(e.target, err);
       localStorage.setItem('loggedIn', false);
+      ET.createSiteNav();
       ET.hideSpinner();
     });
   }

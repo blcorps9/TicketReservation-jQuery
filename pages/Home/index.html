@@ -1,4 +1,15 @@
 <link rel="stylesheet" href="styles.css">
 <section class="page home">
-  Home Page
+  <h2 class="text-center">Tag line</h2>
+  <form class="search-box">
+    <span class="label">Source:</span>
+    <input class="value source" type="text" name="source" id="source">
+    <span class="label">Destination:</span>
+    <input class="value destination" type="text" name="destination" id="destination">
+    <span class="label">Date:</span>
+    <span class="value date"></span>
+    <input class="search-btn text-center light" type="submit" value="Search">
+  </form>
+  <div class="search-results"></div>
 </section>
+<script src="pages/Home/index.js"></script>

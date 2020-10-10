@@ -1,0 +1,43 @@
+.page.login {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+.page.login .container {
+  background-color: var(--color-light);
+  width: 320px;
+  box-shadow: 10px 10px 5px 0px rgba(0,0,0,0.75);
+  padding: 16px;
+  margin: 24px;
+}
+
+/* [label]|[value] */
+.page.login .container h1 {
+  text-align: center;
+}
+
+.user-login {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: center;
+}
+
+.user-login .error {
+  color: var(--color-tomato);
+}
+.user-login label {
+  margin: 4px;
+}
+.user-login input {
+  align-items: center;
+  margin-bottom: 16px;
+  width: 90%;
+  padding: 8px;
+}
+
+.user-login input[type=submit]:hover {
+  background-color: var(--color-mistyrose);
+}

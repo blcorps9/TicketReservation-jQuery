@@ -1,1 +1,3 @@
-console.log("This is a Reservations page");
+// Reinitialize the listeners
+ET.removeListeners();
+ET.addListeners()

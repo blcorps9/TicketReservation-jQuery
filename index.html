@@ -10,33 +10,20 @@
   <div class="app-container d-flex__center">
     <header class="app-header f2">
       <div class="logo f5">⚜️ <span class="site-name f4 light">EasyTravel</span></div>
-      <div class="nav-bar hide-on-mobi">
-        <span class="nav-bar__item light" data-target-page="Home">Home</span>
-        <!-- Based on user type show admin/user dashboard -->
-        <span class="nav-bar__item light" data-target-page="Dashboard">Dashboard</span>
-        <!-- History/Cancellation/Reschedule -->
-        <span class="nav-bar__item light" data-target-page="Reservations">Reservations</span>
-        <!-- If logged in then show log out else redirect to login -->
-        <span class="nav-bar__item light" data-target-page="User">User</span>
-      </div>
+      <div class="nav-bar nav-bar__container hide-on-mobi"></div>
       <div class="nav-bar hamburger show-on-mobi">
         <span class="layer"></span>
         <span class="layer"></span>
         <span class="layer"></span>
 
-        <div class="nav-bar__mobile">
-          <span class="nav-bar__item light" data-target-page="Home">Home</span>
-          <!-- Based on user type show admin/user dashboard -->
-          <span class="nav-bar__item light" data-target-page="Dashboard">Dashboard</span>
-          <!-- History/Cancellation/Reschedule -->
-          <span class="nav-bar__item light" data-target-page="Reservations">Reservations</span>
-          <!-- If logged in then show log out else redirect to login -->
-          <span class="nav-bar__item light" data-target-page="User">User</span>
-        </div>
+        <div class="nav-bar__mobile nav-bar__container"></div>
       </div>
     </header>
     <main class="app-body"></main>
     <footer class="app-footer"></footer>
+    <div class="app-spinner">
+      <div class="spinner"></div>
+    </div>
   </div>
   <script src="jquery.js"></script>
   <script src="index.js"></script>

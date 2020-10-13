@@ -52,7 +52,7 @@ function removeErrors(e) {
   $formElm.children().filter('.error').remove();
 }
 
-function onSubmit(e) {
+function onRegSubmit(e) {
   e.stopPropagation();
   e.preventDefault();
 
@@ -115,4 +115,4 @@ function onSubmit(e) {
 ET.removeListeners();
 ET.addListeners()
 $('[data-reset-error]').keydown(removeErrors);
-$('form.user-registration').submit(onSubmit);
+$('form.user-registration').submit(onRegSubmit);

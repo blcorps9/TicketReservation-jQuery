@@ -9,7 +9,7 @@ const BUSES = [
     destination: 'Mysore',
     mode: 'AC',
     dates: [{
-      date: '1/1/3',
+      date: '1/1/2020',
       seats: 30,
       booked: 2,
       timings: '11:30'
@@ -159,5 +159,48 @@ function createDateElement() {
   $container.append($dd);
 }
 
+const $slidesContainer = $('.slides');
+let $slides;
+let totalSlides = 0;
+let currentSlide = 0;
+
+function nextSlide() {
+  currentSlide = (currentSlide + 1) % totalSlides;
+
+  showSlide();
+}
+
+function prevSlide() {
+  currentSlide = ((currentSlide - 1) + totalSlides) % totalSlides;
+
+  showSlide();
+}
+
+function showSlide() {
+  $slides.removeClass('current');
+  $slides.eq(currentSlide).addClass('current');
+}
+
+function initCarousel() {
+  ET_API.getSlides().then(slides => {
+    slides.forEach((sl) => {
+      $slidesContainer.append($(`<div class="slide" style="background-color: ${sl.color}"></div>`))
+    });
+
+    $slides = $slidesContainer.find('.slide');
+    totalSlides = $slides.length;
+    showSlide();
+    auto();
+  });
+}
+
+function auto() {
+  setInterval(nextSlide, 2000);
+}
+
 $('.search-box').submit(onSumbit);
 createDateElement();
+
+initCarousel();
+$('.carousel-container .next').click(nextSlide);
+$('.carousel-container .prev').click(prevSlide);

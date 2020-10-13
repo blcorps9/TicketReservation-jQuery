@@ -2,7 +2,7 @@
 ET.removeListeners();
 ET.addListeners()
 
-function onSubmit(e) {
+function onLogInSubmit(e) {
   e.stopPropagation();
   e.preventDefault();
 
@@ -25,4 +25,4 @@ function onSubmit(e) {
   });
 }
 
-$('form.user-login').submit(onSubmit);
+$('form.user-login').submit(onLogInSubmit);

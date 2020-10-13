@@ -47,3 +47,34 @@
     margin: auto;
   }
 }
+
+
+.carousel-container {
+  position: relative;
+  width: 80%;
+  height: 100px;
+  margin: auto;
+  overflow: hidden;
+  margin-bottom: 8px;
+}
+.slides .slide {
+  display: none;
+  height: 100%;
+  width: 100%;
+}
+.slides .slide.current {
+  display: block;
+}
+
+.carousel-container .action.prev,
+.carousel-container .action.next {
+  font-size: 24px;
+  position: absolute;
+  top: calc(50% - 20px);
+}
+.carousel-container .action.prev {
+  left: 4px;
+}
+.carousel-container .action.next {
+  right: 4px;
+}

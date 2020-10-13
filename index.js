@@ -56,6 +56,23 @@ window.ET_API = window.ET_API || {
   isLoggedIn() {
     return localStorage.getItem('loggedIn') === 'true';
   },
+
+  getSlides(count = 5) {
+    return new Promise((resolve) => {
+      setTimeout(() => {
+        const res = [];
+
+        for (let i = 0; i < count; i++) {
+          res.push({
+            text: `This a #${i+1} slide.`,
+            color: ET.getColor()
+          });
+        }
+
+        resolve(res);
+      }, NETWORK_DELAY);
+    });
+  }
 }
 // NOT IN THE SCOPE OF THIS APPLICATION ----
 
@@ -195,6 +212,15 @@ window.ET = window.ET || {
   removeListeners() {
     $('[data-target-page]').off('click', ET.handleNavigateTo);
   },
+
+  // Utils
+  getColor() {
+    const r = parseInt(Math.random() * 255).toString(16);//10-default, 2, 8, 16
+    const g = parseInt(Math.random() * 255).toString(16);
+    const b = parseInt(Math.random() * 255).toString(16);
+
+    return `#${r}${g}${b}`;
+  }
 }
 
 // Event handler for a `hashChange` event

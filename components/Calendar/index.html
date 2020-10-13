@@ -1,0 +1,247 @@
+<style>
+  .calender-container {
+    width: 100%;
+    max-width: 320px;
+    background-color: var(--color-grey);
+    text-align: center;
+    font-size: 24px;
+    color: var(--color-light);
+  }
+  .calender-container .calender-header {
+    width: 100%;
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    height: 48px;
+  }
+  .calender-container .calender-header .mm-yyyy {
+    flex: 1;
+  }
+  .calender-container .calender-header .prev, .calender-container .calender-header .next {
+    width: 40px;
+  }
+  .calender-container .calender-body .row {
+    width: 100%;
+    display: flex;
+    flex-flow: row wrap;
+    justify-content: center;
+    align-items: center;
+    gap: 4px;
+    margin-bottom: 4px;
+  }
+  .calender-container .calender-body .row .day {
+    flex: 1;
+    height: 40px;
+    line-height: 40px;
+    border: 1px solid #444;
+  }
+  .calender-container .calender-body .row.days .day.prev,
+  .calender-container .calender-body .row.days .day.next {
+    background-color: #222;
+    color: rgba(255, 255, 255, 0.5);
+  }
+
+  .calender-body .row.days .day.today {
+    background-color: #1e7cf1;
+  }
+  .calender-body .row.days .day:hover {
+    background-color: #999;
+  }
+</style>
+<div class="calender-container">
+  <div class="calender">
+    <div class="calender-header"></div>
+    <div class="calender-body"></div>
+  </div>
+</div>
+<script>
+  (function () {
+    const MONTHS = [
+      "January",
+      "February",
+      "March",
+      "April",
+      "May",
+      "June",
+      "July",
+      "August",
+      "September",
+      "October",
+      "November",
+      "December",
+    ];
+    const DAYS_SHORT = ['S', 'M', 'T', 'W', 'T', 'F', 'S'];
+
+    const today = new Date();
+    const title = `${MONTHS[today.getMonth()]} ${today.getFullYear()}`;
+    const $prev = $('<span class="prev"><<</span>');
+    const $title = $(`<span class="mm-yyyy">${title}</span>`);
+    const $next = $('<span class="next">>></span>');
+    const $header = $('.calender-container .calender-header');
+    const $body = $('.calender-container .calender-body');
+    const minDate = $body.closest('[data-min-date]');
+    const maxDate = $body.closest('[data-max-date]');
+
+    let calenderDate = new Date();
+
+    function getLastDateOfMonth(d) {
+      const yy = d.getFullYear();
+      const mm = d.getMonth();
+
+      return (new Date(yy, mm + 1, 0)).getDate();
+    }
+
+    function getFirstDayOfMonth(d) {
+      const yy = d.getFullYear();
+      const mm = d.getMonth();
+
+      return (new Date(yy, mm, 0)).getDay();
+    }
+
+    function isToday(d) {
+      return today.getFullYear() === d.getFullYear() &&
+      today.getMonth() === d.getMonth() &&
+      today.getDate() === d.getDate();
+    }
+
+    function getClasses(w) {
+      const yy = calenderDate.getFullYear();
+      const mm = calenderDate.getMonth();
+      const cls = isToday(new Date(yy, mm, w.d)) ? ' today' : '';
+
+      return w.class + cls;
+    }
+
+    function updateTitle() {
+      $title.text(`${MONTHS[calenderDate.getMonth()]} ${calenderDate.getFullYear()}`);
+    }
+
+    function onClickPrev() {
+      if (minDate.length) {
+        const lBound = minDate.attr('data-min-date');
+
+        if (lBound) {
+          if (lBound === 'today') {
+            const comparision = ET.compareDates(new Date(), calenderDate);
+
+            if (comparision !== -1) return;
+          } else {
+            const comparision = ET.compareDates(new Date(lBound), calenderDate);
+
+            if (comparision !== -1) return;
+          }
+        }
+      }
+
+      calenderDate.setMonth(calenderDate.getMonth() - 1);
+
+      updateTitle();
+      renderDays();
+    }
+
+    function onClickNext() {
+      if (maxDate.length) {
+        const uBound = maxDate.attr('data-max-date');
+
+        if (uBound) {
+          if (uBound === 'today') {
+            const comparision = ET.compareDates(calenderDate, new Date());
+
+            if (comparision !== -1) return;
+          } else {
+            const comparision = ET.compareDates(calenderDate, new Date(uBound));
+
+            if (comparision !== -1) return;
+          }
+        }
+      }
+
+      calenderDate.setMonth(calenderDate.getMonth() + 1);
+
+      updateTitle();
+      renderDays();
+    }
+
+    function onClickDay(e) {
+      if (e && e.target) {
+        const classes = e.target.classList;
+        let selDate;
+
+        if (classes.contains('prev')) {
+          selDate = new Date(calenderDate.getFullYear(), calenderDate.getMonth() - 1, Number(e.target.innerText));
+        } else if (classes.contains('next')) {
+          selDate = new Date(calenderDate.getFullYear(), calenderDate.getMonth() + 1, Number(e.target.innerText));
+        } else {
+          selDate = new Date(calenderDate.getFullYear(), calenderDate.getMonth(), Number(e.target.innerText));
+        }
+
+        ET.onSelectDay(selDate, e);
+      }
+    };
+
+    function renderHeader() {
+      $header.append($prev, $title, $next);
+    }
+
+    function renderDays() {
+      const totalDays = getLastDateOfMonth(calenderDate);
+      const firstDay = getFirstDayOfMonth(calenderDate);
+      const monthDays = ET.range(1, totalDays, d => ({ d, class: 'day cur' }));
+
+      if (firstDay !== 0) {
+        const prevMnth = new Date(calenderDate.getFullYear(), calenderDate.getMonth() - 1, 1);
+        let prevMnthLastDay = getLastDateOfMonth(prevMnth);
+
+        for (let i = 0; i <= firstDay; i++) {
+          monthDays.unshift({ d: prevMnthLastDay--, class: 'day prev' });
+        }
+      }
+
+      const weekDays = ET.chunk(monthDays, 7);
+      const lastWeek = weekDays[weekDays.length - 1];
+
+      if (lastWeek.length !== 7) {
+        let parity = 1;
+        while (lastWeek.length < 7) {
+          lastWeek.push({ d: parity++, class: 'day next' });
+        }
+      }
+
+      const $weekHead = $(`
+        <div class="row week">
+          ${DAYS_SHORT.reduce((p, c) => (
+            p + '<span class="day dddd">' + c + '</span>'
+          ), '')}
+        </div>
+      `);
+      $body.empty();
+      $body.append($weekHead);
+
+      weekDays.forEach((week) => {
+        const $weekDays = $(`
+          <div class="row days">
+            <span class="${getClasses(week[0])}">${week[0].d}</span>
+            <span class="${getClasses(week[1])}">${week[1].d}</span>
+            <span class="${getClasses(week[2])}">${week[2].d}</span>
+            <span class="${getClasses(week[3])}">${week[3].d}</span>
+            <span class="${getClasses(week[4])}">${week[4].d}</span>
+            <span class="${getClasses(week[5])}">${week[5].d}</span>
+            <span class="${getClasses(week[6])}">${week[6].d}</span>
+          </div>
+        `);
+
+        ET.onSelectDay && $weekDays.click(onClickDay);
+
+        $body.append($weekDays);
+      });
+    }
+
+    $prev.click(onClickPrev);
+    $next.click(onClickNext);
+
+    // when loaded for the first time
+    renderHeader();
+    renderDays();
+  })();
+</script>

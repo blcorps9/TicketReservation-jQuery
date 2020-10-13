@@ -57,7 +57,7 @@ window.ET_API = window.ET_API || {
     return localStorage.getItem('loggedIn') === 'true';
   },
 
-  getSlides(count = 5) {
+  getSlides(count = 5, dim = {}) {
     return new Promise((resolve) => {
       setTimeout(() => {
         const res = [];
@@ -65,7 +65,7 @@ window.ET_API = window.ET_API || {
         for (let i = 0; i < count; i++) {
           res.push({
             text: `This a #${i+1} slide.`,
-            color: ET.getColor()
+            bg: (dim && dim.w) ? `url(https://loremflickr.com/${dim.w}/${dim.h}?${i})` : ET.getColor()
           });
         }
 
@@ -85,6 +85,12 @@ window.ET = window.ET || {
    */
   fetchPage(page, cb) {
     $.get(`pages/${page}/index.html`)
+      .then(resp => cb(null, resp))
+      .catch(err => cb(err));
+  },
+
+  fetchComponent(component, cb) {
+    $.get(`components/${component}/index.html`)
       .then(resp => cb(null, resp))
       .catch(err => cb(err));
   },
@@ -220,6 +226,47 @@ window.ET = window.ET || {
     const b = parseInt(Math.random() * 255).toString(16);
 
     return `#${r}${g}${b}`;
+  },
+
+  range(start, end, cb) {
+    if (!end) {
+      end = start;
+      start = 0;
+    }
+
+    return Array.from({ length: (end - start) + 1 }).map((_v, i) => {
+      if (cb) {
+        return cb(start + i);
+      } else {
+        return start + i;
+      }
+    });
+  },
+
+  chunk(arr, size) {
+    const ip = arr.slice(); // clone it;
+    // const ip = [...arr]; // clone it;
+    const res = [];
+
+    while(ip.length) {
+      res.push(ip.splice(0, size));
+    }
+
+    return res;
+  },
+
+  // -1, 0, 1
+  compareDates(a, b) {
+    const aDate = new Date(a.getFullYear(), a.getMonth(), a.getDate(), 0, 0, 0);
+    const bDate = new Date(b.getFullYear(), b.getMonth(), b.getDate(), 0, 0, 0);
+
+    if (aDate < bDate) {
+      return -1;
+    } else if (aDate > bDate) {
+      return 1;
+    }
+
+    return 0;
   }
 }
 

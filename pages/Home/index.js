@@ -9,7 +9,7 @@ const BUSES = [
     destination: 'Mysore',
     mode: 'AC',
     dates: [{
-      date: '1/1/3',
+      date: '1/1/2020',
       seats: 30,
       booked: 2,
       timings: '11:30'
@@ -65,13 +65,11 @@ function onSumbit(e) {
 
   const source = e.target.source.value.toLowerCase();
   const destination = e.target.destination.value.toLowerCase();
-  const dd = e.target.dd.value;
-  const mm = e.target.mm.value;
-  const yy = e.target.yy.value;
+  const journeyDate = e.target.journeyDate.value;
 
   const buses = BUSES.filter(b => {
     if (b.source.toLowerCase() === source && b.destination.toLowerCase() === destination) {
-      return b.dates.find(_b => _b.date === `${dd}/${mm}/${yy}`);
+      return b.dates.find(_b => _b.date === journeyDate);
     } else {
       return false;
     }
@@ -79,7 +77,7 @@ function onSumbit(e) {
 
   if (buses.length > 0) {
     const res = buses.map((bus) => {
-      const b = bus.dates.find(_b => _b.date === `${dd}/${mm}/${yy}`);
+      const b = bus.dates.find(_b => _b.date === journeyDate);
 
       return {
         name: bus.name,
@@ -120,44 +118,63 @@ function showSearchResults(res) {
 }
 
 function createDateElement() {
-  const today = new Date();
-  const days = Array.from({ length: 31 }).map((_v, i) => i+1);
-  const months = Array.from({ length: 12 }).map((_v, i) => i+1);
-  const years = [today.getFullYear(), today.getFullYear() + 1];
-  const daysMap = {
-    28: [2],
-    29: [2],
-    30: [4, 6, 9, 11],
-    31: [1, 3, 5, 7, 8, 10, 12]
-  };
+  const $container = $('.search-box .journey-date');
 
-  const $container = $('.search-box .value.date');
-  const $dd = $('<select class="dd"type="text" name="dd" id="date-dd">');
-  const $mm = $('<select class="mm"type="text" name="mm" id="date-mm">');
-  const $yy = $('<select class="yy"type="text" name="yy" id="date-yy">');
-
-  days.forEach(d => $dd.append(`<option>${d}</option>`));
-  years.forEach(y => $yy.append(`<option>${y}</option>`));
-  months.forEach(m => $mm.append(`<option>${m}</option>`));
-
-  $mm.change((e) => {
-    $dd.empty();
-
-    for (let d in daysMap) {
-      if (daysMap[d].includes(Number(e.target.value))) {
-        const _days = Array.from({ length: d }).map((_v, i) => i+1);
-
-        _days.forEach(d => $dd.append(`<option>${d}</option>`));
-
-        return;
-      }
-    }
-  });
-
-  $container.append($yy);
-  $container.append($mm);
-  $container.append($dd);
+  addCalendar($container);
 }
 
+function showCalendar(e) {
+  const $calendar = $('.search-box .journey-date .calender-container');
+
+  if ($calendar.length) {
+    $calendar.show();
+  } else {
+    createDateElement();
+  }
+}
+
+function onDateSelect(selectedDate) {
+  const yy = selectedDate.getFullYear();
+  const mm = selectedDate.getMonth();
+  const dd = selectedDate.getDate();
+
+  $dateIp.attr('value', `${dd}/${mm + 1}/${yy}`);
+  $('.search-box .journey-date .calender-container').hide();
+}
+
+function addCalendar($target) {
+  ET.showSpinner();
+  ET.fetchComponent('Calendar', (err, calender) => {
+    ET.hideSpinner();
+    if (err) {
+      alert(err);
+    } else if (calender) {
+      // Needed to get the selected date from the calendar component
+      ET.onSelectDay = onDateSelect;
+      $target.append($(calender));
+    }
+  });
+}
+
+function addCarousel($target) {
+  ET.showSpinner();
+  ET.fetchComponent('Carousel', (err, caro) => {
+    ET.hideSpinner();
+    if (err) {
+      alert(err);
+    } else if (caro) {
+      $target.append($(caro));
+    }
+  });
+}
+
+// Handle form-submission
 $('.search-box').submit(onSumbit);
-createDateElement();
+
+// Handle input click - show calendar
+const $dateIp = $('.search-box .journey-date input');
+$dateIp.focus(showCalendar);
+
+// Add carousel to page
+const $carousel = $('.home .carousel');
+addCarousel($carousel);

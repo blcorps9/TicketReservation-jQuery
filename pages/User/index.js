@@ -1,3 +1,2 @@
-// Reinitialize the listeners
 ET.removeListeners();
-ET.addListeners()
+ET.addListeners();

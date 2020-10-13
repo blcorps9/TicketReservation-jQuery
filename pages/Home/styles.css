@@ -10,10 +10,20 @@
 .page.home .search-box .label {
   width: 20%;
 }
-.page.home .search-box .value {
+.page.home .search-box .value,
+.page.home .search-box .journey-date {
   width: 80%;
 }
-
+.page.home .search-box .journey-date {
+  height: 20px;
+}
+.page.home .search-box .journey-date .date {
+  width: 100%;
+}
+.page.home .search-box .journey-date .calender-container {
+  z-index: 1;
+  position: relative;
+}
 .page.home .search-box .search-btn {
   flex: 1;
   background-color: var(--color-rebecca-purple);
@@ -38,6 +48,12 @@
 
 .page.home .search-results .row span {
   flex: 1;
+}
+
+.page.home .carousel {
+  width: 900px;
+  height: 400px;
+  margin: auto;
 }
 
 @media screen and (min-width: 650px) {

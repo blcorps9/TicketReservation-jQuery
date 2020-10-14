@@ -22,6 +22,11 @@
   --hamburger--layer-height: 4px;
   --hamburger--layer-width: 40px;
   --hamburger--layer-color: var(--color-light);
+
+
+  --z-index--header: 1;
+  --z-index--footer: 1;
+  --z-index--modal: 10;
 }
 
 * {

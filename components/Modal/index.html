@@ -1,0 +1,226 @@
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Modal</title>
+
+  <style>
+    .modal {
+      margin: 0;
+      padding: 0;
+      z-index: var(--z-index--modal);
+    }
+
+    .modal .modal-overlay {
+      position: fixed;
+      height: 100vh;
+      width: 100vw;
+      left: 0;
+      top: 0;
+      background-color: rgba(0, 0, 0, 0.5);
+
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .modal .modal-content {
+      width: auto;
+      height: auto;
+      background-color: #fff;
+      border-radius: 5px;
+
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .modal .modal-header, .modal-footer {
+      height: 48px;
+      line-height: 48px;
+      width: 100%;
+    }
+    .modal .modal-header .modal-close {
+      margin: 10px;
+      float: right;
+      cursor: pointer;
+    }
+    .modal .modal-body {
+      flex: 1;
+      width: 100%;
+      padding: 24px 0;
+      border-top: 1px solid #333;
+      border-bottom: 1px solid #333;
+      overflow-y: scroll;
+    }
+    .modal .modal-body .seats-action {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 0 4px;
+    }
+
+    .modal .modal-body .seats-action .seat-btn {
+      width: 32px;
+      height: 32px;
+      line-height: 32px;
+      text-align: center;
+      background-color: #333;
+      color: #fff;
+    }
+
+    .modal .modal-body .seats-action .seat-btn.active {
+      background-color:#2086b7;
+    }
+
+    .modal .modal-body .passengers {
+      width: 96%;
+      margin: auto;
+    }
+    .modal .modal-body .passengers .btn-checkout {
+      width: 90%;
+      margin: auto;
+      height: 24px;
+    }
+
+    .modal .modal-body .passengers .row {
+      margin: 24px;
+
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+
+    .modal .modal-body .passengers .row .passenger__info,
+    .modal .modal-body .passengers .row .first-half,
+    .modal .modal-body .passengers .row .second-half {
+      width: 100%
+    }
+
+    /* .modal .modal-body .passengers label {}
+    .modal .modal-body .passengers input {} */
+  </style>
+</head>
+<body>
+  <div class="modal-container">
+    <div class="modal">
+      <div class="modal-overlay">
+        <div class="modal-content">
+          <div class="modal-header">
+            <strong class="modal-header__title"></strong>
+            <button class="modal-close"><strong>X</strong></button>
+          </div>
+          <div class="modal-body">
+            <div class="seats">
+              <div>Please select number of seats:</div>
+              <div class="seats-action">
+                <div class="seat-btn">1</div>
+                <div class="seat-btn">2</div>
+                <div class="seat-btn">3</div>
+                <div class="seat-btn">4</div>
+                <div class="seat-btn">5</div>
+              </div>
+            </div>
+            <div class="passengers"></div>
+          </div>
+          <div class="modal-footer"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="jquery.js"></script>
+  <script>
+    (function (){
+      let numOfPassengers = 0;
+      const $modalContainer = $('.modal-container');
+      const $modalTitle = $('.modal-header .modal-header__title');
+      // const $modalheader = $('.modal-header');
+      // const $modalTitle = $modalheader.find('.modal-header__title');
+
+      const $modalClose = $('.modal-header .modal-close');
+      const $modalBody = $('.modal-body');
+      const $modalFooter = $('.modal-footer');
+      const $modalSeatBtns = $('.seats-action .seat-btn');
+      const $passengers = $('.modal-body .passengers');
+
+      $modalTitle.text('Checkout');
+      $modalClose.click(onClickCloseModal);
+      $modalSeatBtns.click(onClickSeatNumber);
+
+      function onClickCloseModal() {
+        $modalContainer.empty();
+      }
+
+      function onClickSeatNumber(e) {
+        $modalSeatBtns.removeClass('active');
+
+        e.target.classList.add('active');
+
+        $passengers.empty();
+        $passengers.append(createPassengerForm(Number(e.target.innerText)));
+      }
+
+      function passengerInfoElm(id) {
+        return $(`
+          <div class="row">
+            <h3 class="passenger__info">Passenger Info: ${id}</h3>
+
+            <div class="first-half">
+              <label for="name-${id}">Name:</label>
+              <input type="text" name="name-${id}" id="name-${id}">
+
+              <label for="gender-${id}">Gender:</label>
+              <select id="gender-${id}" name="gender-${id}">
+                <option value="male">Male</option>
+                <option value="female">Female</option>
+              </select>
+            </div>
+
+            <div class="second-half">
+              <label for="age-${id}">Age:</label>
+              <input type="text" name="age-${id}" id="age-${id}">
+
+              <label for="phone-${id}">Phone:</label>
+              <input type="text" name="phone-${id}" id="phone-${id}">
+            </div>
+          </div>
+        `);
+      }
+
+      function createPassengerForm(totalPassengers) {
+        const $formWrapper = $(`
+          <div class="passenger-info">
+            <form name="passengers" class="passenger-form"></form>
+          </div>
+        `);
+        const $formElm = $formWrapper.find('.passenger-form');
+
+        for (let i = 1; i <= totalPassengers; i++) {
+          $formElm.append(passengerInfoElm(i));
+        }
+
+        $formElm.append($('<input type="submit" class="btn-checkout" value="Book">'));
+        $formElm.submit(onCheckout);
+
+        return $formElm;
+      }
+
+      function onCheckout(e) {
+        // TODO: Need to add checkout logic;
+
+        // Your logic goes here...
+
+        // below is the kind of expected output
+        const passengerList = [
+          { name: 'P1', gender: 'F', age: 12, phone: '9XXXXXXXX'}, // id
+          { name: 'P1', gender: 'F', age: 12, phone: '9XXXXXXXX'}, // id
+          { name: 'P1', gender: 'F', age: 12, phone: '9XXXXXXXX'}, // id
+        ];
+      }
+    })();
+  </script>
+</body>
+</html>

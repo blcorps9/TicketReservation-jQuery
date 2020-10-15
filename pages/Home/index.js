@@ -2,64 +2,7 @@
 ET.removeListeners();
 ET.addListeners();
 
-const BUSES = [
-  {
-    name: 'Bangalore-Mysore',
-    source: 'Bangalore',
-    destination: 'Mysore',
-    mode: 'AC',
-    dates: [{
-      date: '1/1/2020',
-      seats: 30,
-      booked: 2,
-      timings: '11:30'
-    }, {
-      date: '11/11/2020',
-      seats: 60,
-      booked: 12,
-      timings: '10:30'
-    }, {
-      date: '12/11/2020',
-      seats: 60,
-      booked: 12,
-      timings: '10:30'
-    }, {
-      date: '13/11/2020',
-      seats: 60,
-      booked: 12,
-      timings: '10:30'
-    }],
-  },
-  {
-    name: 'Mysore-Bangalore',
-    source: 'Mysore',
-    destination: 'Bangalore',
-    mode: 'Non-AC',
-    dates: [{
-      date: '10/11/2020',
-      seats: 60,
-      booked: 12,
-      timings: '10:30'
-    }, {
-      date: '11/11/2020',
-      seats: 60,
-      booked: 12,
-      timings: '10:30'
-    }, {
-      date: '12/11/2020',
-      seats: 60,
-      booked: 12,
-      timings: '10:30'
-    }, {
-      date: '13/11/2020',
-      seats: 60,
-      booked: 12,
-      timings: '10:30'
-    }],
-  }
-]
-
-function onSumbit(e) {
+function onSearchBusSumbit(e) {
   e.preventDefault();
   e.stopPropagation();
 
@@ -67,37 +10,42 @@ function onSumbit(e) {
   const destination = e.target.destination.value.toLowerCase();
   const journeyDate = e.target.journeyDate.value;
 
-  const buses = BUSES.filter(b => {
-    if (b.source.toLowerCase() === source && b.destination.toLowerCase() === destination) {
-      return b.dates.find(_b => _b.date === journeyDate);
-    } else {
-      return false;
+  ET.showSpinner();
+  ET_API.searchBuses({ source, destination, journeyDate }).then(buses => {
+    ET.hideSpinner();
+    if (buses.length > 0) {
+      const res = buses.map((bus) => {
+        return {
+          name: bus.busName,
+          mode: bus.busMode,
+          timings: bus.departure,
+          seats: bus.seats.length,
+          booked: bus.seats.filter(s => !s.available).length,
+          bookings: bus.seats
+        }
+      });
+      // [1][2] [3][4]
+      // [5][6] [7][8]
+
+      showSearchResults(res);
     }
+  }).catch(err=> {
+    console.log("err =-----> ", err);
+    ET.hideSpinner();
   });
-
-  if (buses.length > 0) {
-    const res = buses.map((bus) => {
-      const b = bus.dates.find(_b => _b.date === journeyDate);
-
-      return {
-        name: bus.name,
-        mode: bus.mode,
-        timings: b.timings,
-        seats: b.seats,
-        booked: b.booked
-      }
-    });
-
-    showSearchResults(res);
-  }
 }
 
 
 function showSearchResults(res) {
   const $container = $('.search-results');
-  const $summary = $(`<div class="search-res-count">Total buses available on Date are ${res.length}.</div>`);
+  const $summary = $(`
+    <div class="search-res-count">
+      Total buses available on <strong>${$dateIp.attr('value')}</strong> are <strong>${res.length}</strong>.
+    </div>
+  `);
 
   $container.append($summary);
+
   const $head = $(`<div class="row">
       <span class="name">Bus Name</span>
       <span class="mode">AC/Non-AC</span>
@@ -105,13 +53,16 @@ function showSearchResults(res) {
       <span class="seats">Available seats</span>
     </div>`);
   $container.append($head);
+
   res.forEach(r => {
-    const $row = `<div class="row">
+    const $row = $(`<div class="row">
       <span class="name">${r.name}</span>
       <span class="mode">${r.mode}</span>
       <span class="time">${r.timings}</span>
       <span class="seats">${r.seats - r.booked + "/" + r.seats}</span>
-    </div>`;
+    </div>`);
+
+    $row.click(() => onClickBus(r));
 
     $container.append($row);
   });
@@ -168,8 +119,37 @@ function addCarousel($target) {
   });
 }
 
+function onClickBus(bus) {
+  ET.showSpinner();
+  ET.fetchComponent('CheckoutModal', (err, modal) => {
+    ET.hideSpinner();
+    if (err) {
+      alert(err);
+    } else if (modal) {
+      renderModal(modal);
+    }
+  });
+}
+
+function renderModal(modal) {
+  const $target = $('.modal-container');
+  $target.attr('data-on-modal-sumbit', 'handleOnModalCheckout');
+  $target.attr('data-on-modal-close', 'handleOnModalClose');
+
+  ET.handleOnModalCheckout = (list, e) => {
+    console.log("handleOnModalCheckout =-----> ", list, e);
+    $target.empty();
+  }
+
+  ET.handleOnModalClose = (list, e) => {
+    console.log("handleOnModalClose =-----> ", list, e);
+  }
+
+  $target.append(modal);
+}
+
 // Handle form-submission
-$('.search-box').submit(onSumbit);
+$('.search-box').submit(onSearchBusSumbit);
 
 // Handle input click - show calendar
 const $dateIp = $('.search-box .journey-date input');
@@ -177,4 +157,4 @@ $dateIp.focus(showCalendar);
 
 // Add carousel to page
 const $carousel = $('.home .carousel');
-addCarousel($carousel);
+// addCarousel($carousel);

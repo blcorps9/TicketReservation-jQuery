@@ -3,3 +3,21 @@
   height: 100%;
   width: 100%;
 }
+
+.page.dashboard .my-buses {
+  width: 80%;
+  height: auto;
+}
+
+.bus-info-container {
+  width: 100%;
+  padding: 24px;
+  background-color: burlywood;
+}
+
+.add-bus-section {
+  width: 100%;
+  margin-top: 24px;
+  padding: 24px;
+  background-color: burlywood;
+}

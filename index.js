@@ -72,6 +72,54 @@ window.ET_API = window.ET_API || {
         resolve(res);
       }, NETWORK_DELAY);
     });
+  },
+
+  getMyBuses() {
+    return new Promise((resolve) => {
+      setTimeout(() => {
+        // Buses for current user only
+        const buses = JSON.parse(localStorage.getItem('buses') || '[]');
+
+        resolve(buses);
+      }, NETWORK_DELAY);
+    });
+  },
+
+  searchBuses({ source, destination, journeyDate }) {
+    return new Promise((resolve) => {
+      setTimeout(() => {
+        const buses = JSON.parse(localStorage.getItem('buses') || '[]').filter(b => (
+          b.travelDate === journeyDate
+          && b.busSource.toLowerCase() === source
+          && b.busDestination.toLowerCase() === destination
+        ));
+
+        resolve(buses);
+      }, NETWORK_DELAY);
+    });
+  },
+
+
+
+  registerMyBus(newBus) {
+    return new Promise((resolve) => {
+      setTimeout(() => {
+        const prevBuses = JSON.parse(localStorage.getItem('buses') || '[]');
+
+        const seats = ET.range(1, Number(newBus.seats)).map(s => ({
+          available: true,
+          isWindow: s%4 === 0 || s%4 === 1,
+          isFemaleOnly: false,
+          nextSeat: s%2 !== 0 ? s+1 : s-1,
+        }));
+
+        const newBuses = [...prevBuses, {...newBus, seats }];
+
+        localStorage.setItem('buses', JSON.stringify(newBuses));
+
+        resolve(prevBuses);
+      }, NETWORK_DELAY);
+    });
   }
 }
 // NOT IN THE SCOPE OF THIS APPLICATION ----
@@ -186,6 +234,7 @@ window.ET = window.ET || {
     ET.hideMobileMenu();
 
     localStorage.setItem('loggedIn', false);
+    localStorage.setItem('isAdmin', false);
     ET.navigateTo('home');
     ET.createSiteNav();
   },

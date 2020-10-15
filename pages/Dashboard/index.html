@@ -1,5 +1,58 @@
 <link rel="stylesheet" href="pages/Dashboard/styles.css">
 <section class="page dashboard">
-  Dashboard Page
+  <sections class="my-buses">
+    <h3>My Buses</h3>
+    <table class="bus-info-container">
+      <tr class="bus-info">
+        <td class="bus-name">Name</td>
+        <td class="bus-number">Number</td>
+        <td class="bus-source">Source</td>
+        <td class="bus-destination">Destination</td>
+        <td class="bus-travel-date">Travel Date</td>
+        <td class="bus-departure">Departure</td>
+        <td class="bus-mode">Mode</td>
+        <td class="bus-seats">Seats</td>
+      </tr>
+    </table>
+  </sections>
+  <button class="reg-bus-btn">Register New Bus</button>
+  <section class="add-bus-section">
+    <h3>New Bus Info</h3>
+    <form class="new-bus-info">
+      <label for="busName">Bus Name:</label>
+      <input type="text" name="busName" id="busName">
+      <br>
+
+      <label for="busNumber">Bus Number:</label>
+      <input type="text" name="busNumber" id="busNumber">
+      <br>
+
+      <label for="busSource">Bus Source:</label>
+      <input type="text" name="busSource" id="busSource">
+      <br>
+
+      <label for="busDestination">Bus Destination:</label>
+      <input type="text" name="busDestination" id="busDestination">
+      <br>
+
+      <label for="travelDate">Travel Date:</label>
+      <input type="text" name="travelDate" id="travelDate">
+      <br>
+
+      <label for="busMode">Bus Mode:</label>
+      <input type="text" name="busMode" id="busMode">
+      <br>
+
+      <label for="seats">Bus Seats:</label>
+      <input type="text" name="seats" id="seats">
+      <br>
+
+      <label for="departure">Departure Time:</label>
+      <input type="text" name="departure" id="departure">
+      <br>
+
+      <input type="submit" value="Register Bus">
+    </form>
+  </section>
 </section>
 <script src="pages/Dashboard/index.js"></script>

@@ -1,0 +1,225 @@
+<style>
+  .modal {
+    margin: 0;
+    padding: 0;
+    z-index: var(--z-index--modal);
+  }
+
+  .modal .modal-overlay {
+    position: fixed;
+    height: 100vh;
+    width: 100vw;
+    left: 0;
+    top: 0;
+    background-color: rgba(0, 0, 0, 0.5);
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+
+  .modal .modal-content {
+    width: auto;
+    height: auto;
+    background-color: #fff;
+    border-radius: 5px;
+
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+  }
+
+  .modal .modal-header, .modal .modal-footer {
+    height: 48px;
+    line-height: 48px;
+    width: 100%;
+  }
+  .modal .modal-header .modal-close {
+    margin: 10px;
+    float: right;
+    cursor: pointer;
+  }
+  .modal .modal-body {
+    flex: 1;
+    width: 100%;
+    padding: 24px 0;
+    border-top: 1px solid #333;
+    border-bottom: 1px solid #333;
+    overflow-y: scroll;
+  }
+  .modal .modal-body .seats-action {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 0 4px;
+  }
+
+  .modal .modal-body .seats-action .seat-btn {
+    width: 32px;
+    height: 32px;
+    line-height: 32px;
+    text-align: center;
+    background-color: #333;
+    color: #fff;
+  }
+
+  .modal .modal-body .seats-action .seat-btn.active {
+    background-color:#2086b7;
+  }
+
+  .modal .modal-body .passengers {
+    width: 96%;
+    margin: auto;
+  }
+  .modal .modal-body .passengers .btn-checkout {
+    width: 90%;
+    margin: auto;
+    height: 24px;
+  }
+
+  .modal .modal-body .passengers .row {
+    margin: 24px;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-wrap: wrap;
+  }
+
+  .modal .modal-body .passengers .row .passenger__info,
+  .modal .modal-body .passengers .row .first-half,
+  .modal .modal-body .passengers .row .second-half {
+    width: 100%
+  }
+
+  /* .modal .modal-body .passengers label {}
+  .modal .modal-body .passengers input {} */
+</style>
+<div class="modal">
+  <div class="modal-overlay">
+    <div class="modal-content">
+      <div class="modal-header">
+        <strong class="modal-header__title"></strong>
+        <button class="modal-close"><strong>X</strong></button>
+      </div>
+      <div class="modal-body">
+        <div class="seats">
+          <div>Please select number of seats:</div>
+          <div class="seats-action">
+            <div class="seat-btn">1</div>
+            <div class="seat-btn">2</div>
+            <div class="seat-btn">3</div>
+            <div class="seat-btn">4</div>
+            <div class="seat-btn">5</div>
+          </div>
+        </div>
+        <div class="passengers"></div>
+      </div>
+      <div class="modal-footer"></div>
+    </div>
+  </div>
+</div>
+<script>
+  (function (){
+    let totalPassengers = 0;
+    const $modalContainer = $('.modal-container');
+    const $modalTitle = $('.modal-header .modal-header__title');
+    const $modalClose = $('.modal-header .modal-close');
+    const $modalBody = $('.modal-body');
+    const $modalFooter = $('.modal-footer');
+    const $modalSeatBtns = $('.seats-action .seat-btn');
+    const $passengers = $('.modal-body .passengers');
+
+    // parent handlers to pass data from modal to parent.
+    const onSubmitHandlerName = $modalContainer.attr('data-on-modal-sumbit');
+    const onCloseHandlerName = $modalContainer.attr('data-on-modal-close');
+
+    $modalTitle.text('Checkout');
+
+    function onClickCloseModal(e) {
+      totalPassengers = 0;
+      $modalContainer.empty();
+
+      ET[onCloseHandlerName] && ET[onCloseHandlerName](e);
+    }
+
+    function onClickSeatNumber(e) {
+      $modalSeatBtns.removeClass('active');
+
+      e.target.classList.add('active');
+
+      $passengers.empty();
+      totalPassengers = Number(e.target.innerText);
+      $passengers.append(createPassengerForm());
+    }
+
+    function passengerInfoElm(id) {
+      return $(`
+        <div class="row">
+          <h3 class="passenger__info">Passenger Info: ${id}</h3>
+
+          <div class="first-half">
+            <label for="name-${id}">Name:</label>
+            <input type="text" name="name-${id}" id="name-${id}" required minlength="3">
+
+            <label for="gender-${id}">Gender:</label>
+            <select id="gender-${id}" name="gender-${id}" required>
+              <option value="male">Male</option>
+              <option value="female">Female</option>
+            </select>
+          </div>
+
+          <div class="second-half">
+            <label for="age-${id}">Age:</label>
+            <input type="text" name="age-${id}" id="age-${id}" required>
+
+            <label for="phone-${id}">Phone:</label>
+            <input type="text" name="phone-${id}" id="phone-${id}" required minlength="10" maxlength="10">
+          </div>
+        </div>
+      `);
+    }
+
+    function createPassengerForm() {
+      const $formWrapper = $(`
+        <div class="passenger-info">
+          <form name="passengers" class="passenger-form"></form>
+        </div>
+      `);
+      const $formElm = $formWrapper.find('.passenger-form');
+
+      for (let i = 1; i <= totalPassengers; i++) {
+        $formElm.append(passengerInfoElm(i));
+      }
+
+      $formElm.append($('<input type="submit" class="btn-checkout" value="Book Now">'));
+      $formElm.submit(onCheckout);
+
+      return $formElm;
+    }
+
+    function onCheckout(e) {
+      e.preventDefault();
+      e.stopPropagation();
+
+      const passengerList = [];
+      const formFields = ['name', 'gender', 'age', 'phone'];
+      const formElm = e.target;
+
+      for (let i = 1; i <= totalPassengers; i++) {
+        const passenger = formFields.reduce((acc, cur) => ({
+          ...acc, [cur]: formElm[`${cur}-${i}`].value
+        }), {});
+
+        passengerList.push(passenger);
+      }
+
+      ET[onSubmitHandlerName] && ET[onSubmitHandlerName](passengerList, e);
+    }
+
+    $modalClose.click(onClickCloseModal);
+    $modalSeatBtns.click(onClickSeatNumber);
+  })();
+</script>
+

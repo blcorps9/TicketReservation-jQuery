@@ -16,10 +16,12 @@ function onLogInSubmit(e) {
 
   ET.showSpinner();
   ET_API.login(formData).then((logged) => {
+    localStorage.setItem('isAdmin', logged['is-admin'] === 'on');
     ET.navigateTo('home');
     ET.createSiteNav();
     ET.hideSpinner();
   }).catch((err) => {
+    localStorage.setItem('isAdmin', false);
     ET.createSiteNav();
     ET.hideSpinner();
   });

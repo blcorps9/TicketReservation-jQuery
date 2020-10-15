@@ -96,8 +96,10 @@ function onRegSubmit(e) {
     renderErrors(e.target, errors);
   } else {
     ET.showSpinner();
-    ET_API.createUser(formData).then(() => {
+    ET_API.createUser(formData).then((logged) => {
       localStorage.setItem('loggedIn', true);
+      localStorage.setItem('isAdmin', logged['is-admin'] === 'on');
+
       ET.navigateTo && ET.navigateTo('Dashboard');
       ET.createSiteNav();
       ET.hideSpinner();
@@ -110,9 +112,25 @@ function onRegSubmit(e) {
   }
 }
 
+function isAdmin() {
+  return location.search.indexOf('isAdmin=true') > 0;
+}
+
 // Add event listeners
 // Reinitialize the listeners
 ET.removeListeners();
-ET.addListeners()
+ET.addListeners();
+
+const $regForm = $('form.user-registration');
 $('[data-reset-error]').keydown(removeErrors);
-$('form.user-registration').submit(onRegSubmit);
+$regForm.submit(onRegSubmit);
+
+if (isAdmin()) {
+  const $passField = $regForm.find('#confirm-password');
+  const $checkBox = $(`
+  <label for="is-admin">Admin:</label>
+  <input type="checkbox" name="is-admin" id="is-admin" data-reset-error checked>
+  `);
+
+  $checkBox.insertAfter($passField);
+}

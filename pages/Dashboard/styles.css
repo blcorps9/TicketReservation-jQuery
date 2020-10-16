@@ -4,11 +4,21 @@
   width: 100%;
 }
 
-.page.dashboard .my-buses {
+.page.dashboard .my-buses,
+.page.dashboard .my-bookings {
   width: 80%;
   height: auto;
+  margin: auto;
 }
 
+.tickets-info-container {
+  width: 80%;
+  height: auto;
+  margin: auto;
+  padding: 24px;
+  background-color: burlywood;
+}
+.booking-info-container,
 .bus-info-container {
   width: 100%;
   padding: 24px;
@@ -16,8 +26,15 @@
 }
 
 .add-bus-section {
-  width: 100%;
-  margin-top: 24px;
+  width: 320px;
   padding: 24px;
   background-color: burlywood;
+  margin: 24px auto;
+  text-align: center;
+}
+
+.reg-bus-btn {
+  text-align: center;
+  margin: 24px auto;
+  padding: 10px;
 }

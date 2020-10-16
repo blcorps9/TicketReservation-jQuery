@@ -1,0 +1,35 @@
+.page.checkout {
+  width: 80%;
+  margin: 16px auto;
+}
+
+.payment-section, .bus-section, .passengers-section {
+  border: 1px solid #333;
+  margin: 16px;
+  padding: 16px;
+}
+
+.page.checkout .row {
+  border: 1px solid #999;
+  padding: 4px 8px;
+}
+
+.page.checkout .row .label {
+  display: inline-block;
+  width: 150px;
+}
+
+.page.checkout .passengers-section .passenger-card {
+  margin-top: 16px;
+}
+
+.page.checkout .payment-section .payment-action {
+  margin: 8px;
+  width: 100%;
+  text-align: center;
+}
+
+.page.checkout .payment-section .payment-action .pay-now-btn {
+  padding: 8px;
+  width: 60%;
+}

@@ -20,9 +20,10 @@
 
   .modal .modal-content {
     width: auto;
-    height: auto;
+    min-width: 550px;
     background-color: #fff;
     border-radius: 5px;
+    padding: 8px;
 
     display: flex;
     flex-direction: column;
@@ -93,8 +94,55 @@
     width: 100%
   }
 
-  /* .modal .modal-body .passengers label {}
-  .modal .modal-body .passengers input {} */
+  .bus-interior {
+    display: flex;
+    flex-flow: row wrap;
+
+    border: 2px solid #000;
+    padding: 8px;
+    border-radius: 4px;
+    max-width: 530px;
+    margin: 16px auto;
+  }
+
+  .bus-interior .row {
+    height: 144px;
+  }
+  .bus-interior .row .wheel {
+    font-size: 24px;
+    margin-right: 8px;
+  }
+
+  .bus-interior .row .walkway {
+    height: 24px;
+  }
+  .bus-interior .row .seat {
+    width: 24px;
+    height: 24px;
+    margin: 4px;
+    border: 3px solid #000;
+    border-left-color: transparent;
+    border-radius: 4px;
+    cursor: pointer;
+  }
+  .bus-interior .row .seat.booked {
+    border-color: var(--color-booked);
+    border-left-color: transparent;
+    cursor: not-allowed;
+  }
+  .bus-interior .row .seat.available {
+    border-color: var(--color-available);
+    border-left-color: transparent;
+  }
+  .bus-interior .row .seat.available:hover,
+  .bus-interior .row .seat.selected {
+    border-color: var(--color-selected);
+    border-left-color: transparent;
+  }
+  .bus-interior .row .seat.female {
+    border-color: var(--color-female);
+    border-left-color: transparent;
+  }
 </style>
 <div class="modal">
   <div class="modal-overlay">
@@ -106,13 +154,7 @@
       <div class="modal-body">
         <div class="seats">
           <div>Please select number of seats:</div>
-          <div class="seats-action">
-            <div class="seat-btn">1</div>
-            <div class="seat-btn">2</div>
-            <div class="seat-btn">3</div>
-            <div class="seat-btn">4</div>
-            <div class="seat-btn">5</div>
-          </div>
+          <section class="bus-interior"></section>
         </div>
         <div class="passengers"></div>
       </div>
@@ -122,42 +164,93 @@
 </div>
 <script>
   (function (){
-    let totalPassengers = 0;
     const $modalContainer = $('.modal-container');
     const $modalTitle = $('.modal-header .modal-header__title');
     const $modalClose = $('.modal-header .modal-close');
     const $modalBody = $('.modal-body');
     const $modalFooter = $('.modal-footer');
-    const $modalSeatBtns = $('.seats-action .seat-btn');
     const $passengers = $('.modal-body .passengers');
+    const $busInterior = $('.modal-body .bus-interior');
+    const busData = $modalContainer.data();
+    let selectedSeats = [];
 
     // parent handlers to pass data from modal to parent.
     const onSubmitHandlerName = $modalContainer.attr('data-on-modal-sumbit');
     const onCloseHandlerName = $modalContainer.attr('data-on-modal-close');
 
     $modalTitle.text('Checkout');
+    $busInterior.append($('<div class="row"><div class="wheel">𐃏</div></div>'));
+    if (busData && busData.bookings) {
+      let seatNumber = 1;
+      ET.chunk(busData.bookings, 4).forEach(row => {
+        const $row = $('<div class="row"></div>');
+
+        row.forEach((s, i) => {
+          const classes = ['seat'];
+
+          if (s.isFemaleOnly && s.available) {
+            classes.push('female');
+          } else if (s.available) {
+            classes.push('available');
+          } else {
+            classes.push('booked');
+          }
+
+          if (i === 2) {
+            $row.append('<div class="walkway"></div>');
+          }
+
+          const $seat = $(`<div class="${classes.join(' ')}">${seatNumber++}</div>`);
+
+          $seat.data(s);
+
+          if (s.available) {
+            $seat.click(onClickSeatNumber);
+          }
+
+          $row.append($seat);
+        });
+
+        $busInterior.append($row);
+      });
+    }
 
     function onClickCloseModal(e) {
-      totalPassengers = 0;
+      selectedSeats = [];
       $modalContainer.empty();
 
       ET[onCloseHandlerName] && ET[onCloseHandlerName](e);
     }
 
     function onClickSeatNumber(e) {
-      $modalSeatBtns.removeClass('active');
+      e.preventDefault();
+      e.stopPropagation();
 
-      e.target.classList.add('active');
+      const $seat = $(e.target);
+      const seat = {
+        number: Number($seat.text()),
+        price: $seat.data().price
+      };;
+
+
+      if ($seat.hasClass('selected')) {
+        selectedSeats = selectedSeats.filter(s => s.number !== seat.number);
+      } else {
+        selectedSeats = [...selectedSeats, seat].sort((a, b) => a.number - b.number);
+      }
+
+      $seat.toggleClass('selected');
 
       $passengers.empty();
-      totalPassengers = Number(e.target.innerText);
       $passengers.append(createPassengerForm());
     }
 
-    function passengerInfoElm(id) {
+    function passengerInfoElm(s) {
+      const id = s.number;
+
       return $(`
         <div class="row">
-          <h3 class="passenger__info">Passenger Info: ${id}</h3>
+          <h3 class="passenger__info">Passenger Info: Seat Number ${id}, Price: ${ET.formatPrice(s.price)}</h3>
 
           <div class="first-half">
             <label for="name-${id}">Name:</label>
@@ -189,9 +282,7 @@
       `);
       const $formElm = $formWrapper.find('.passenger-form');
 
-      for (let i = 1; i <= totalPassengers; i++) {
-        $formElm.append(passengerInfoElm(i));
-      }
+      selectedSeats.forEach(s => $formElm.append(passengerInfoElm(s)));
 
       $formElm.append($('<input type="submit" class="btn-checkout" value="Book Now">'));
       $formElm.submit(onCheckout);
@@ -207,19 +298,18 @@
       const formFields = ['name', 'gender', 'age', 'phone'];
       const formElm = e.target;
 
-      for (let i = 1; i <= totalPassengers; i++) {
+      selectedSeats.forEach(s => {
         const passenger = formFields.reduce((acc, cur) => ({
-          ...acc, [cur]: formElm[`${cur}-${i}`].value
+          ...acc, [cur]: formElm[`${cur}-${s.number}`].value, seat: s.number, price: s.price
         }), {});
 
         passengerList.push(passenger);
-      }
+      });
 
       ET[onSubmitHandlerName] && ET[onSubmitHandlerName](passengerList, e);
     }
 
     $modalClose.click(onClickCloseModal);
-    $modalSeatBtns.click(onClickSeatNumber);
   })();
 </script>
 

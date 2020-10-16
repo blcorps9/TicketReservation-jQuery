@@ -5,6 +5,13 @@
   --color-tomato: #ff6347;
   --color-mistyrose: #ffe4e1;
   --color-rebecca-purple: #663399;
+  --color-green:  #058809;
+  --color-pink: #df09e2;
+
+  --color-available: var(--color-green);
+  --color-selected: var(--color-grey);
+  --color-female: var(--color-pink);
+  --color-booked: var(--color-tomato);
 
   --bg-color: var(--color-light);
   --text-color: var(--color-dark);

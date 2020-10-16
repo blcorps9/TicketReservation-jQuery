@@ -1,3 +1,5 @@
-// Reinitialize the listeners
-ET.removeListeners();
-ET.addListeners()
+(function() {
+  // Reinitialize the listeners
+  ET.removeListeners();
+  ET.addListeners()
+})();

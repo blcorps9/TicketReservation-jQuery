@@ -1,2 +1,4 @@
-ET.removeListeners();
-ET.addListeners();
+(function() {
+  ET.removeListeners();
+  ET.addListeners();
+})();

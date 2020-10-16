@@ -1,5 +1,5 @@
 const SITE_NAME = 'EasyTravel';
-const NETWORK_DELAY = 3000;
+const NETWORK_DELAY = 1000;
 const SECURE_ROUTES = [
   'dashboard',
   'reservations',
@@ -24,11 +24,19 @@ window.ET_API = window.ET_API || {
               username: 'existingUsername',
             });
           } else {
+            // Assign unique `id` to user
+            user.id = ET.uuidv4();
+
             localStorage.setItem('users', JSON.stringify([...users, user]));
+            localStorage.setItem('currentUser', user.id);
             resolve(user);
           }
         } else {
+          // Assign unique `id` to user
+          user.id = ET.uuidv4();
+
           localStorage.setItem('users', JSON.stringify([user]));
+          localStorage.setItem('currentUser', user.id);
           resolve(user);
         }
       }, NETWORK_DELAY);
@@ -44,9 +52,11 @@ window.ET_API = window.ET_API || {
 
         if (loggedInUser) {
           localStorage.setItem('loggedIn', true);
+          localStorage.setItem('currentUser', loggedInUser.id);
           resolve(loggedInUser);
         } else {
           localStorage.setItem('loggedIn', false);
+          localStorage.removeItem('currentUser');
           reject({ error: 'Username and password combiation is wrong'});
         }
       }, NETWORK_DELAY);
@@ -85,6 +95,42 @@ window.ET_API = window.ET_API || {
     });
   },
 
+  getBus(busId) {
+    return new Promise((resolve) => {
+      setTimeout(() => {
+        const buses = JSON.parse(localStorage.getItem('buses') || '[]');
+
+        const bus = buses.find(b => b.id === busId);
+
+        resolve(bus);
+      }, NETWORK_DELAY);
+    });
+  },
+
+  getMyBookings({ userId }) {
+    return new Promise((resolve) => {
+      setTimeout(() => {
+        const bookings = JSON.parse(localStorage.getItem('bookings') || '{}');
+        const buses = JSON.parse(localStorage.getItem('buses') || '{}');
+        const myBookings = [];
+
+        for (let busId in bookings) {
+          const userBookings = bookings[busId].filter(u => u.userId === userId);
+          const bus = buses.find(b => b.id === busId);
+
+          if (userBookings.length) {
+            myBookings.push({
+              bus,
+              bookings: userBookings
+            });
+          }
+        }
+
+        resolve(myBookings);
+      }, NETWORK_DELAY);
+    });
+  },
+
   searchBuses({ source, destination, journeyDate }) {
     return new Promise((resolve) => {
       setTimeout(() => {
@@ -99,8 +145,6 @@ window.ET_API = window.ET_API || {
     });
   },
 
-
-
   registerMyBus(newBus) {
     return new Promise((resolve) => {
       setTimeout(() => {
@@ -111,13 +155,64 @@ window.ET_API = window.ET_API || {
           isWindow: s%4 === 0 || s%4 === 1,
           isFemaleOnly: false,
           nextSeat: s%2 !== 0 ? s+1 : s-1,
+          price: newBus.price
         }));
 
-        const newBuses = [...prevBuses, {...newBus, seats }];
+        const newBuses = [...prevBuses, {...newBus, seats, id: ET.uuidv4() }];
 
         localStorage.setItem('buses', JSON.stringify(newBuses));
 
         resolve(prevBuses);
+      }, NETWORK_DELAY);
+    });
+  },
+
+  checkout({ busId, passengers, userId, payment }) {
+    return new Promise((resolve, reject) => {
+      setTimeout(() => {
+        const buses = JSON.parse(localStorage.getItem('buses') || '[]');
+        const payments = JSON.parse(localStorage.getItem('payments') || '{}');
+        const busIndex = buses.findIndex(b => b.id === busId);
+        const seatIds = passengers.map(p => p.seat);
+        const paymentId = ET.uuidv4();
+
+        if (busIndex !== -1 && seatIds.length) {
+          const bus = buses[busIndex];
+          const seats = bus.seats;
+
+          passengers.forEach(p => {
+            const seat = seats[p.seat - 1];
+            // Link booking a/c
+            p.userId = userId;
+            p.paymentId = paymentId;
+
+            seat.available = false;
+
+            if (p.gender === 'female') {
+              seat.isFemaleOnly = true;
+
+              if (seatIds.indexOf(seat.nextSeat) === -1) {
+                seats[seat.nextSeat - 1].isFemaleOnly = true;
+              }
+            }
+          });
+
+          localStorage.setItem('buses', JSON.stringify(buses));
+          const bookings = JSON.parse(localStorage.getItem('bookings') || '{}');
+          const busBooking = bookings[busId] || [];
+
+          localStorage.setItem('buses', JSON.stringify(buses));
+          localStorage.setItem('bookings', JSON.stringify({
+            ...bookings, [busId]: [...busBooking, ...passengers]
+          }));
+          localStorage.setItem('payments', JSON.stringify({
+            ...payments, [paymentId]: payment
+          }));
+
+          resolve(passengers);
+        } else {
+          reject(new Error('Please select seats.'));
+        }
       }, NETWORK_DELAY);
     });
   }
@@ -316,6 +411,22 @@ window.ET = window.ET || {
     }
 
     return 0;
+  },
+
+  uuidv4() {
+    return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g, (c) => {
+      const r = (Math.random() * 16) | 0;
+      const v = c == "x" ? r : (r & 0x3) | 0x8;
+
+      return v.toString(16);
+    });
+  },
+
+  formatPrice(price) {
+    return Number(price).toLocaleString('en-IN', {
+      style: 'currency',
+      currency: 'INR',
+    });
   }
 }
 

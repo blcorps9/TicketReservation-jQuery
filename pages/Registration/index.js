@@ -1,136 +1,139 @@
-const ERRORS = {
-  invalidPassword: 'Please enter a valid password.',
-  invalidEmail: 'Please enter a valid email',
-  invalidUsername: 'Username is not a valid. Specical char, upper, number is required.',
-  invalidFirstname: 'Please provide valid firstname.',
+(function () {
+  const ERRORS = {
+    invalidPassword: 'Please enter a valid password.',
+    invalidEmail: 'Please enter a valid email',
+    invalidUsername: 'Username is not a valid. Specical char, upper, number is required.',
+    invalidFirstname: 'Please provide valid firstname.',
 
-  passAndConfirmShouldMatch: 'Password and Confirm password should match.',
+    passAndConfirmShouldMatch: 'Password and Confirm password should match.',
 
-  existingEmail: 'That email is already taken.',
-  existingUsername: 'That username is not available.'
-};
+    existingEmail: 'That email is already taken.',
+    existingUsername: 'That username is not available.'
+  };
 
-function isEmail(email) {
-  const re = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+  function isEmail(email) {
+    const re = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
 
-  return re.test(String(email).toLowerCase());
-}
-
-function isValidUsername(name) {
-  name = String(name);
-
-  if (!name.match(/[\$@#!&*%]/)) {
-    return false;
-  } else if (!name.match(/[A-Z]/)) {
-    return false;
-  } else if (!name.match(/[a-z]/)) {
-    return false;
-  } else if (!name.match(/[0-9]/)) {
-    return false;
+    return re.test(String(email).toLowerCase());
   }
 
-  return true;
-}
+  function isValidUsername(name) {
+    name = String(name);
 
-function renderErrors(formElm, errors) {
-  const $errElm = $('<span class="error"></span>');
-  const $formElm = $(formElm);
+    if (!name.match(/[\$@#!&*%]/)) {
+      return false;
+    } else if (!name.match(/[A-Z]/)) {
+      return false;
+    } else if (!name.match(/[a-z]/)) {
+      return false;
+    } else if (!name.match(/[0-9]/)) {
+      return false;
+    }
 
-  for (const elm in errors) {
-    const $errField = $formElm.find(`[name=${elm}]`);
-    const $fieldErr = $errElm.clone();
-
-    $fieldErr.text(ERRORS[elm]);
-
-    $fieldErr.insertAfter($errField);
+    return true;
   }
-}
 
-function removeErrors(e) {
-  const $formElm = $(e.target).closest('form');
+  function renderErrors(formElm, errors) {
+    const $errElm = $('<span class="error"></span>');
+    const $formElm = $(formElm);
 
-  $formElm.children().filter('.error').remove();
-}
+    for (const elm in errors) {
+      const $errField = $formElm.find(`[name=${elm}]`);
+      const $fieldErr = $errElm.clone();
 
-function onRegSubmit(e) {
-  e.stopPropagation();
-  e.preventDefault();
+      $fieldErr.text(ERRORS[elm]);
 
-  removeErrors(e);
-
-  const formData = {};
-  const errors = {};
-  let hasError = false;
-
-  for (let i of e.target) {
-    if (i.type !== 'submit') {
-      formData[i.name] = i.value;
+      $fieldErr.insertAfter($errField);
     }
   }
 
-  if (formData.password.length === 0) {
-    errors.password = 'invalidPassword';
-    hasError = true;
-  } else if (formData.password !== formData['confirm-password']) {
-    errors['confirm-password'] = 'passAndConfirmShouldMatch';
-    hasError = true;
+  function removeErrors(e) {
+    const $formElm = $(e.target).closest('form');
+
+    $formElm.children().filter('.error').remove();
   }
 
-  if (!isEmail(formData.email)) {
-    errors.email = 'invalidEmail';
-    hasError = true;
+  function onRegSubmit(e) {
+    e.stopPropagation();
+    e.preventDefault();
+
+    removeErrors(e);
+
+    const formData = {};
+    const errors = {};
+    let hasError = false;
+
+    for (let i of e.target) {
+      if (i.type !== 'submit') {
+        formData[i.name] = i.value;
+      }
+    }
+
+    if (formData.password.length === 0) {
+      errors.password = 'invalidPassword';
+      hasError = true;
+    } else if (formData.password !== formData['confirm-password']) {
+      errors['confirm-password'] = 'passAndConfirmShouldMatch';
+      hasError = true;
+    }
+
+    if (!isEmail(formData.email)) {
+      errors.email = 'invalidEmail';
+      hasError = true;
+    }
+
+    if (!isValidUsername(formData.username)) {
+      errors.username = 'invalidUsername';
+      hasError = true;
+    }
+
+    if (formData.firstname.length < 2) {
+      errors.firstname = 'invalidFirstname'
+      hasError = true;
+    }
+
+    // users
+    if (hasError) {
+      renderErrors(e.target, errors);
+    } else {
+      ET.showSpinner();
+      console.log("formData =-----> ", formData);
+      ET_API.createUser(formData).then((logged) => {
+        localStorage.setItem('loggedIn', true);
+        localStorage.setItem('isAdmin', logged['is-admin'] === 'on');
+
+        ET.navigateTo && ET.navigateTo('Dashboard');
+        ET.createSiteNav();
+        ET.hideSpinner();
+      }).catch(err => {
+        renderErrors(e.target, err);
+        localStorage.setItem('loggedIn', false);
+        ET.createSiteNav();
+        ET.hideSpinner();
+      });
+    }
   }
 
-  if (!isValidUsername(formData.username)) {
-    errors.username = 'invalidUsername';
-    hasError = true;
+  function isAdmin() {
+    return location.search.indexOf('isAdmin=true') > 0;
   }
 
-  if (formData.firstname.length < 2) {
-    errors.firstname = 'invalidFirstname'
-    hasError = true;
+  // Add event listeners
+  // Reinitialize the listeners
+  ET.removeListeners();
+  ET.addListeners();
+
+  const $regForm = $('form.user-registration');
+  $('[data-reset-error]').keydown(removeErrors);
+  $regForm.submit(onRegSubmit);
+
+  if (isAdmin()) {
+    const $passField = $regForm.find('#confirm-password');
+    const $checkBox = $(`
+      <label for="is-admin">Admin:</label>
+      <input type="checkbox" name="is-admin" id="is-admin" data-reset-error checked>
+    `);
+
+    $checkBox.insertAfter($passField);
   }
-
-  // users
-  if (hasError) {
-    renderErrors(e.target, errors);
-  } else {
-    ET.showSpinner();
-    ET_API.createUser(formData).then((logged) => {
-      localStorage.setItem('loggedIn', true);
-      localStorage.setItem('isAdmin', logged['is-admin'] === 'on');
-
-      ET.navigateTo && ET.navigateTo('Dashboard');
-      ET.createSiteNav();
-      ET.hideSpinner();
-    }).catch(err => {
-      renderErrors(e.target, err);
-      localStorage.setItem('loggedIn', false);
-      ET.createSiteNav();
-      ET.hideSpinner();
-    });
-  }
-}
-
-function isAdmin() {
-  return location.search.indexOf('isAdmin=true') > 0;
-}
-
-// Add event listeners
-// Reinitialize the listeners
-ET.removeListeners();
-ET.addListeners();
-
-const $regForm = $('form.user-registration');
-$('[data-reset-error]').keydown(removeErrors);
-$regForm.submit(onRegSubmit);
-
-if (isAdmin()) {
-  const $passField = $regForm.find('#confirm-password');
-  const $checkBox = $(`
-  <label for="is-admin">Admin:</label>
-  <input type="checkbox" name="is-admin" id="is-admin" data-reset-error checked>
-  `);
-
-  $checkBox.insertAfter($passField);
-}
+})();
